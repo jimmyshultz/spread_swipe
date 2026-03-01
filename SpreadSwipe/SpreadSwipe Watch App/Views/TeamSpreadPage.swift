@@ -8,9 +8,9 @@
 import SwiftUI
 
 /// A single full-screen page showing:
-/// - Team logo (centered)
+/// - Team abbreviation in team colors (centered)
 /// - Spread value (top-right)
-/// - Opponent info (bottom-right): small opponent logo, @/vs, date & time
+/// - Opponent info (bottom-right): opponent abbreviation, @/vs, date & time
 struct TeamSpreadPage: View {
     
     let context: TeamSpreadContext
@@ -34,9 +34,22 @@ struct TeamSpreadPage: View {
             // Pure black background (OLED)
             Color.black.ignoresSafeArea()
             
-            // Center: Team logo
-            teamLogo(for: context.team)
+            // Center: Team abbreviation badge
+            teamBadge(for: context.team, size: 90)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            // Top-left: Sport icon
+            VStack {
+                HStack {
+                    Image(systemName: context.team.league.sfSymbol)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.5))
+                    Spacer()
+                }
+                Spacer()
+            }
+            .padding(.top, 6)
+            .padding(.leading, 6)
             
             // Top-right: Spread value
             VStack {
@@ -62,22 +75,21 @@ struct TeamSpreadPage: View {
         }
     }
     
-    // MARK: - Team Logo
+    // MARK: - Team Badge
     
+    /// Renders a circular badge with the team abbreviation in team colors.
     @ViewBuilder
-    private func teamLogo(for team: Team) -> some View {
-        if UIImage(named: team.assetName) != nil {
-            Image(team.assetName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 90, height: 90)
-        } else {
-            // Fallback: league sport icon
-            Image(systemName: team.league.sfSymbol)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 60, height: 60)
-                .foregroundStyle(.white.opacity(0.5))
+    private func teamBadge(for team: Team, size: CGFloat) -> some View {
+        ZStack {
+            Circle()
+                .fill(team.primarySwiftUIColor)
+                .frame(width: size, height: size)
+            
+            Text(team.abbreviation)
+                .font(.system(size: size * 0.32, weight: .black, design: .rounded))
+                .foregroundStyle(team.secondarySwiftUIColor)
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
         }
     }
     
@@ -118,6 +130,8 @@ struct TeamSpreadPage: View {
     private var opponentInfo: some View {
         switch context.spreadState {
         case .spread(let info):
+            let opponentTeam = TeamRegistry.allTeams.first { $0.apiName == info.opponent }
+            
             HStack(spacing: 3) {
                 // Date & Time
                 VStack(alignment: .trailing, spacing: 0) {
@@ -134,9 +148,20 @@ struct TeamSpreadPage: View {
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.7))
                 
-                // Opponent logo
-                opponentLogo(for: info)
-                    .frame(width: 22, height: 22)
+                // Opponent mini badge
+                if let opp = opponentTeam {
+                    teamBadge(for: opp, size: 24)
+                } else {
+                    // Fallback for unknown opponent
+                    ZStack {
+                        Circle()
+                            .fill(Color.gray.opacity(0.5))
+                            .frame(width: 24, height: 24)
+                        Text("?")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                    }
+                }
             }
             
         default:
@@ -144,33 +169,9 @@ struct TeamSpreadPage: View {
         }
     }
     
-    // MARK: - Opponent Logo
-    
-    @ViewBuilder
-    private func opponentLogo(for info: SpreadState.GameInfo) -> some View {
-        // Look up the opponent's asset name from the registry
-        let opponentTeam = TeamRegistry.allTeams.first { $0.apiName == info.opponent }
-        
-        if let team = opponentTeam, UIImage(named: team.assetName) != nil {
-            Image(team.assetName)
-                .resizable()
-                .scaledToFit()
-        } else if let team = opponentTeam {
-            Image(systemName: team.league.sfSymbol)
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(.white.opacity(0.4))
-        } else {
-            Image(systemName: "questionmark.circle")
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(.white.opacity(0.4))
-        }
-    }
-    
     // MARK: - Date/Time Formatting
     
-    /// Formats an ISO 8601 string to "MM/dd".
+    /// Formats an ISO 8601 string to "M/dd".
     private func formattedDate(_ isoString: String) -> String {
         guard let date = parseISO(isoString) else { return "" }
         let formatter = DateFormatter()
@@ -200,7 +201,7 @@ struct TeamSpreadPage: View {
 // MARK: - Preview
 
 #Preview {
-    let team = Team(id: "NBA_LAL", league: .nba, apiName: "Los Angeles Lakers", assetName: "logo_nba_lal")
+    let team = Team(id: "NBA_LAL", league: .nba, apiName: "Los Angeles Lakers", assetName: "logo_nba_lal", primaryColor: "552583", secondaryColor: "FDB927")
     let gameInfo = SpreadState.GameInfo(
         spread: "-4",
         opponent: "Golden State Warriors",

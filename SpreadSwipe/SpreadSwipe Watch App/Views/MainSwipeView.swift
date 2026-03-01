@@ -47,11 +47,11 @@ struct MainSwipeView: View {
     let _ = {
         vm.teamContexts = [
             TeamSpreadContext(
-                team: Team(id: "NFL_DAL", league: .nfl, apiName: "Dallas Cowboys", assetName: "logo_nfl_dal"),
+                team: Team(id: "NFL_DAL", league: .nfl, apiName: "Dallas Cowboys", assetName: "logo_nfl_dal", primaryColor: "003594", secondaryColor: "FFFFFF"),
                 spreadState: .spread(SpreadState.GameInfo(spread: "+3.5", opponent: "Philadelphia Eagles", commenceTime: "2026-03-02T18:00:00Z", isHome: true))
             ),
             TeamSpreadContext(
-                team: Team(id: "NBA_LAL", league: .nba, apiName: "Los Angeles Lakers", assetName: "logo_nba_lal"),
+                team: Team(id: "NBA_LAL", league: .nba, apiName: "Los Angeles Lakers", assetName: "logo_nba_lal", primaryColor: "552583", secondaryColor: "FDB927"),
                 spreadState: .spread(SpreadState.GameInfo(spread: "-7", opponent: "Golden State Warriors", commenceTime: "2026-03-01T02:30:00Z", isHome: false))
             ),
         ]
