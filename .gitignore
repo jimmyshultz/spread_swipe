@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Xcode
+SpreadSwipe/SpreadSwipe.xcodeproj/xcuserdata/
+SpreadSwipe/SpreadSwipe.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# Node (Cloudflare Worker)
+spread-swipe-worker/node_modules/
+
+# Wrangler
+.wrangler/
+
+# Team logos (large binary files from ESPN CDN — import into Xcode Assets manually)
+team_logos/
+
+# Antigravity artifacts
+.gemini/

@@ -1,0 +1,13 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "spread-swipe-worker"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# KV namespace binding
+[[kv_namespaces]]
+binding = "SPREADS_CACHE"
+id = "7169dc837c934c6bbc5f6dbd9d3a5e3b"
+
+# Cron trigger: every 8 hours (midnight, 8am, 4pm UTC)
+[triggers]
+crons = ["0 */8 * * *"]
